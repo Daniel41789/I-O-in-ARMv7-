@@ -16,7 +16,7 @@
 	.syntax unified
 	.thumb
 	.thumb_func
-	.type	sum_array, %function
+	.type	sum_array, %function 
 sum_array:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -162,3 +162,4 @@ main:
 	.size	main, .-main
 	.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
 	.section	.note.GNU-stack,"",%progbits
+@ test
