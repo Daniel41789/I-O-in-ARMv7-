@@ -121,36 +121,23 @@ ascii_to_int:
 main:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r7, lr}
-	sub	sp, sp, #16
+	push	{r7, lr}		@ Inicio del prólogo 
+	sub	sp, sp, #16		
 	add	r7, sp, #0
 	ldr	r3, .L13
 	ldr	r3, [r3]
-	str	r3, [r7, #12]
+	str	r3, [r7, #12]		@ Fin del prólogo
 	mov	r3, #0
 	add	r3, r7, #8
-	mov	r0, r3
-
-	/*
+	mov	r0, r3		
+/*
+	ciclo: 
 	ldr r0, =first
     ldr r1, =#0x6
     bl read_user_input
-
-    ldr r0, =second
-    ldr r1, =#0x6
-    bl read_user_input
-
-	//: convert that input into  number
-    ldr r0, =first
-    bl ascii_to_int
-    mov r4, r0
-
-    ldr r0, =second
-    bl ascii_to_int
-    mov r5, r0
-
-
-
+	Guardado de la entrada en un registro 
+	Ingreso de ese registro a un arreglo
+	bl ciclo
 	*/
 	bl	ascii_to_int
 	str	r0, [r7, #4]
