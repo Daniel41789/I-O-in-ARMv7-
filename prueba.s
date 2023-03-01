@@ -129,16 +129,26 @@ main:
 	str	r3, [r7, #12]		@ Fin del prólogo
 	mov	r3, #0
 	add	r3, r7, #8
-	mov	r0, r3		
-/*
-	ciclo: 
+	mov	r0, r3
+	add r4, r4, #0		@ i <- 0 
+	str r4, [r7, #20]   @
+	add r5, r5, #3		@  Size of array
+	add r6, r6, #0		@ r6 = 0
+	str r6, [r7, #24]	@ stores r6 in com 
+	b .L15
+.L16: 			
 	ldr r0, =first
     ldr r1, =#0x6
     bl read_user_input
-	Guardado de la entrada en un registro 
-	Ingreso de ese registro a un arreglo
-	bl ciclo
-	*/
+	mov r8, r0 
+	ldr r6, [r7, #24] 
+	add r9, r9, #4 	@
+	add r4, r4, #1		@ 
+.L15: 	  
+	cmp r4, r5
+	bge .L16
+
+
 	bl	ascii_to_int
 	str	r0, [r7, #4]
 	movs	r3, #0
