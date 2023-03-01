@@ -12,6 +12,35 @@
 	.file	"prueba.c"
 	.text
 	.align	1
+	.global	read_user_input
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	read_user_input, %function
+read_user_input:
+	# prologue starts here
+	push {r7} 
+	sub sp, sp, #12
+	add r7, sp, #0
+	str r0, [r7] @ backs buffer's base address up 
+	str r1, [r7, #4] @ backs buffer size up
+	# Function body
+	ldr r2, [r7, #8] @ loads buffer size 
+	ldr r1, [r7, #4] @ loads buffer's base address 
+	mov r0, #0х0 @ file descritor kind ( STDIN)
+	mov r7, #3 @ sets the kind of function call
+	svc 0x0 @ performs system call
+	mov r3, r0
+	add r7, sp, #0
+	# Epilogue
+	move r0, r3 
+	adds r7, r7, #12
+	mov sp, r7
+	pop {r7}
+	bx lr
+	
+	.size	read_user_input, .-read_user_input
+	.align	1
 	.global	sum_array
 	.syntax unified
 	.thumb
