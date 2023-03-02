@@ -12,6 +12,26 @@
 	.file	"c.c"
 	.text
 	.align	1
+	.global	display
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	display, %function
+display:
+    push {lr}
+    push {r4-r11}
+    mov r7, #0x4
+    mov r0, #0x1
+    ldr r1, =sum
+    mov r2, #0x8
+    svc 0x0
+    pop {r4-r11}
+    pop {pc}
+
+	.size	display, .-display
+
+	.text
+	.align	1
 	.global	read_user_input
 	.syntax unified
 	.thumb
@@ -28,13 +48,13 @@ read_user_input:
 	# Function body
 	ldr r2, [r7, #8] 		@ loads buffer size 
 	ldr r1, [r7, #4] 		@ loads buffer's base address 
-	mov r0, #0х0 @ file descritor kind ( STDIN)
-	mov r7, #3 @ sets the kind of function call
-	svc 0x0 @ performs system call
+	mov r0, #0x0 			@ file descritor kind ( STDIN)
+	mov r7, #0x3 			@ sets the kind of function call
+	svc 0x0 				@ performs system call
 	mov r3, r0
 	add r7, sp, #0
 	# Epilogue
-	move r0, r3 
+	mov r0, r3 
 	adds r7, r7, #12
 	mov sp, r7
 	pop {r7}
@@ -42,7 +62,6 @@ read_user_input:
 	
 	.size	read_user_input, .-read_user_input
 
-	.text
 	.global	arraySize
 	.section	.rodata
 	.align	2
@@ -50,7 +69,6 @@ read_user_input:
 	.size	arraySize, 4
 arraySize:
 	.word	3
-	.text
 	.align	1
 	.global	sum_array
 	.syntax unified
@@ -122,7 +140,12 @@ charToInt:
 	bx	lr
 	.size	charToInt, .-charToInt
 
-.global main
+	.align	1
+	.global	main
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type	main, %function
 
 main: 
 	@ Prólogo
@@ -137,8 +160,9 @@ F1: ldr r1, =#0x6
 	ldr r0, =first
     bl read_user_input
 	mov r2, r0
+
 	// calls charToInt
-	ldr r0, r2
+	mov r0, r2
 	bl charToInt
 	mov r2, r0
 	ldr r0, [r7]				@ loads i into r0
@@ -151,7 +175,17 @@ F0: ldr r0, [r7]				@ r0 <- i
 	cmp r0, #3					@ compares
 	blt F1						@ i < 3
 
-	// Llamar suma 
+	// calls sum_array
+	add r1, r7, #4				@ base (a)
+	mov r0, r1					@ 
+	bl sum_array				@ calls sum_array
+	mov r1, r0					@
+
+	// Llamado de la función de impresión 
+	bl display
+    mov r0, #0x0
+    mov r7, #0x1
+    svc 0x0
 
 	mov	r0, #0
 	adds	r7, r7, #16
@@ -159,12 +193,14 @@ F0: ldr r0, [r7]				@ r0 <- i
 	@ sp needed
 	pop	{r7, pc}
 
-
-
-
-
+	.size	main, .-main
 	.ident	"GCC: (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0"
 	.section	.note.GNU-stack,"",%progbits
-
+	
+	.section .data
 first: 
 	.skip 8
+
+sum: 
+	.skip 8
+	
