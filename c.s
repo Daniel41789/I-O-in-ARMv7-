@@ -136,16 +136,29 @@ main:
 F1: ldr r1, =#0x6
 	ldr r0, =first
     bl read_user_input
-	// atoi
+	mov r2, r0
+	// calls charToInt
+	ldr r0, r2
+	bl charToInt
+	mov r2, r0
 	ldr r0, [r7]				@ loads i into r0
 	add r1, r7, #4				@ base (a)
-	str r0, [r1, r0, lsl #2]	@ adress a[i] = base (a) + size * i 
+	str r2, [r1, r0, lsl #2]	@ adress a[i] = base (a) + size * i 
 	ldr r0, [r7]				@ r0 <- i
 	add r0, #1					@ i++
 	str r0, [r7]				@ stores r0 in i
 F0: ldr r0, [r7]				@ r0 <- i
 	cmp r0, #3					@ compares
 	blt F1						@ i < 3
+
+	// Llamar suma 
+
+	mov	r0, #0
+	adds	r7, r7, #16
+	mov	sp, r7
+	@ sp needed
+	pop	{r7, pc}
+
 
 
 
