@@ -9,26 +9,37 @@
 	.eabi_attribute 30, 6
 	.eabi_attribute 34, 1
 	.eabi_attribute 18, 4
-	.file	"c.c"
+	.file	"c.c"	
 	.text
-	.align	1
-	.global	display
+	.align  1
+	.global display
 	.syntax unified
 	.thumb
 	.thumb_func
-	.type	display, %function
+	.type   display, %function
 display:
-    push {lr}
-    push {r4-r11}
-    mov r7, #0x4
-    mov r0, #0x1
-    ldr r1, =sum
-    mov r2, #0x8
-    svc 0x0
-    pop {r4-r11}
-    pop {pc}
+    push {r7}
+	sub sp, sp, #12
+	add r7, sp, #0			@ End of prologue
+	str r0, [r7] 		@ sum_array result backups 
 
-	.size	display, .-display
+	# Function body
+	ldr r1, [r7]
+    mov r7, #0x4            @ write 
+	mov r0, #0x1            @ exit	 		
+	mov r2, #0x8			@ creat
+    svc 0x0
+	mov r3, r0
+	add r7, sp, #0
+
+	# Epilogue
+	mov r0, r3 
+	adds r7, r7, #12
+	mov sp, r7
+	pop {r7}
+	bx lr
+
+    .size   display, .-display
 
 	.text
 	.align	1
@@ -46,8 +57,8 @@ read_user_input:
 	str r1, [r7, #4] 		@ backs buffer size up
 
 	# Function body
-	ldr r2, [r7, #8] 		@ loads buffer size 
-	ldr r1, [r7, #4] 		@ loads buffer's base address 
+	ldr r2, [r7, #4] 		@ loads buffer size 
+	ldr r1, [r7] 			@ loads buffers base address 
 	mov r0, #0x0 			@ file descritor kind ( STDIN)
 	mov r7, #0x3 			@ sets the kind of function call
 	svc 0x0 				@ performs system call
@@ -182,6 +193,7 @@ F0: ldr r0, [r7]				@ r0 <- i
 	mov r1, r0					@
 
 	// Llamado de la función de impresión 
+	mov r0, r1
 	bl display
     mov r0, #0x0
     mov r7, #0x1
