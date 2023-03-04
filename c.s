@@ -10,6 +10,44 @@
 	.eabi_attribute 34, 1
 	.eabi_attribute 18, 4
 	.file	"c.c"	
+	
+int_to_string:
+    push {lr}
+    push {r4-r11}
+    mov r2, #0x0
+    mov r3, #1000
+    mov r7, #10
+
+_loop:
+    mov r4, #0x0
+    udiv r4, r0, r3
+    add r4, r4, #0x30
+
+    ldr r5, =sum
+    add r5, r5, r2
+    strb r4, [r5]
+    add r2, r2, #1
+
+    sub r4, r4, #0x30
+    mul r6, r4, r3
+    sub r0, r0, r6
+
+    udiv r6, r3, r7
+    mov r3, r6
+    cmp r3, #0
+    beq _leave_int
+    b _loop
+
+_leave_int:
+    mov r4, #0xa
+    ldr r5, =sum
+    add r5, r5, r2
+    add r5, r5, #1
+    strb r4, [r5]
+    pop {r4-r11}
+    pop {pc}
+	
+	
 	.text
 	.align  1
 	.global display
@@ -159,54 +197,54 @@ charToInt:
 	.type	main, %function
 
 main: 
-	@ Prólogo
+	// Prólogo
 	push {r7, lr}
 	sub	sp, sp, #24
 	add	r7, sp, #0
-	@ Fin del Prólogo
-	mov r3, #0
-	movs r3, #0					@ int i = 0;
-	str r3, [r7, #4]				@ stores r0 in i
-	b F0						@ branch to F0
+	// Fin del Prólogo
+	mov r3, #0				@ r3 <- 0
+	str r3, [r7, #4]			@ stores r3 in i
+	b F0					@ branch to F0
 F1: 
-	ldr r0, =first
-	ldr r1, =#0x6
-    	bl read_user_input
+	ldr r0, =first				@ buffer
+	ldr r1, =#0x6				@ size of buffer
+    bl read_user_input			@ branch to read_user_input
 
 	// calls charToInt
-	ldr r0, =first
+	ldr r0, =first				@ buffer
 	bl charToInt				@ branch to charToInt							
-	ldr r3, [r7, #4]			@ Cambiar estos registros --->
+	ldr r3, [r7, #4]			@ r3 <- i
 	lsls r3, r3, #2				@ i*4
-	adds r3, r3, #24				@ r2 <- base
+	adds r3, r3, #24			@ r2 <- base
 	add r3, r3, r7				@ base + i * 4
-	mov r2, r0 					@ 
-	str r2, [r3, #-16]
-	ldr r3, [r7, #4]
-	adds r3, r3, #1
-	str r3, [r7, #4]
+	mov r2, r0 				@ r2 <- user input
+	str r2, [r3, #-16]			
+	ldr r3, [r7, #4]			@ r3 <- i
+	adds r3, r3, #1				@ i++
+	str r3, [r7, #4]			@ stores i++
 F0: 
-	ldr r3, [r7, #4]				@ r0 <- i
-	cmp r3, #2					@ compares
-	ble F1
+	ldr r3, [r7, #4]			@ r0 <- i
+	cmp r3, #2				@ compares i with 2
+	ble F1					@ branch less equal (1 <= 2) to F1
 
 	// calls sum_array
-	add r3, r7, #8				@ base (a)
-	mov r1, #3
-	mov r0, r3					@ 
-	bl sum_array
-	mov r9, r0				@ calls sum_array
+	add r3, r7, #8				@ base (array)
+	mov r1, #3				@ r1 <- 3
+	mov r0, r3				@ r0 <- base (array)
+	bl sum_array				@ branch to sum_array
 	
-	// Aqui va llamado a int to string
-	
-	// Llamado de la función de impresión 
-	ldr r1, =sum
-	mov r0, r1
-	bl display
+	//int to string
+	ldr r1, =sum				@ buffer 
+	bl int_to_string			@ branch to int_to_string
 
-	@return 0
-	mov	r0, r9
-	adds r7, r7, #24
+	// Llamado de la función de impresión 
+	ldr r1, =sum				@ buffer
+	mov r0, r1				@ r0 <- buffer
+	bl display				@ branch to display
+
+	@ epilogo de main
+	mov	r0, #0				@ return 0
+	adds r7, r7, #24			
 	mov	sp, r7
 	@ sp needed
 	pop	{r7, pc}
@@ -216,9 +254,10 @@ F0:
 	.section	.note.GNU-stack,"",%progbits
 	
 	.section .data
-first: 
-	.skip 8
+	first: 
+		.skip 8
 
-sum: 
-	.skip 8
+	sum: 
+		.skip 8
+	
 	
