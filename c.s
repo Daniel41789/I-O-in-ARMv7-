@@ -10,7 +10,16 @@
 	.eabi_attribute 34, 1
 	.eabi_attribute 18, 4
 	.file	"c.c"	
-	
+	.text
+	.align  1
+	.global display
+	.syntax unified
+	.thumb
+	.thumb_func
+	.type   display, %function
+
+
+
 int_to_string:
     push {lr}
     push {r4-r11}
@@ -46,15 +55,7 @@ _leave_int:
     strb r4, [r5]
     pop {r4-r11}
     pop {pc}
-	
-	
-	.text
-	.align  1
-	.global display
-	.syntax unified
-	.thumb
-	.thumb_func
-	.type   display, %function
+
 display:
     push {r7}
 	sub sp, sp, #12
@@ -63,12 +64,13 @@ display:
 
 	# Function body
 	ldr r1, [r7]
-    mov r7, #0x4            @ write 
-	mov r0, #0x1            @ exit	 		
+	mov r9, r7
+	mov r0, #0x1            @ exit	
+    mov r7, #0x4            @ write
 	mov r2, #0x8			@ creat
     svc 0x0
+	mov r7, r9
 	mov r3, r0
-	add r7, sp, #0
 
 	# Epilogue
 	mov r0, r3 
@@ -97,9 +99,11 @@ read_user_input:
 	# Function body
 	ldr r2, [r7, #4] 		@ loads buffer size 
 	ldr r1, [r7] 			@ loads buffers base address 
+	mov r9, r7
 	mov r0, #0x0 			@ file descritor kind ( STDIN)
 	mov r7, #0x3 			@ sets the kind of function call
 	svc 0x0 				@ performs system call
+	mov r7, r9
 	mov r3, r0
 	add r7, sp, #0
 	# Epilogue
@@ -111,13 +115,7 @@ read_user_input:
 	
 	.size	read_user_input, .-read_user_input
 
-	.global	arraySize
-	.section	.rodata
-	.align	2
-	.type	arraySize, %object
-	.size	arraySize, 4
-arraySize:
-	.word	3
+.text
 	.align	1
 	.global	sum_array
 	.syntax unified
@@ -132,6 +130,7 @@ sum_array:
 	sub	sp, sp, #20
 	add	r7, sp, #0
 	str	r0, [r7, #4]
+	str	r1, [r7]
 	movs	r3, #0
 	str	r3, [r7, #8]
 	movs	r3, #0
@@ -150,9 +149,9 @@ sum_array:
 	adds	r3, r3, #1
 	str	r3, [r7, #12]
 .L2:
-	movs	r2, #3
-	ldr	r3, [r7, #12]
-	cmp	r3, r2
+	ldr	r2, [r7, #12]
+	ldr	r3, [r7]
+	cmp	r2, r3
 	blt	.L3
 	ldr	r3, [r7, #8]
 	mov	r0, r3
@@ -161,34 +160,48 @@ sum_array:
 	@ sp needed
 	pop	{r7}
 	bx	lr
-	.size	sum_array, .-sum_array
+	.size	sum_array, .-sum_array	
 	.align	1
+	
 	.global	charToInt
 	.syntax unified
 	.thumb
 	.thumb_func
 	.type	charToInt, %function
 charToInt:
-	@ args = 0, pretend = 0, frame = 16
-	@ frame_needed = 1, uses_anonymous_args = 0
-	@ link register save eliminated.
-	push	{r7}
-	sub	sp, sp, #20
-	add	r7, sp, #0
-	mov	r3, r0
-	strb	r3, [r7, #7]
-	ldrb	r3, [r7, #7]	@ zero_extendqisi2
-	subs	r3, r3, #48
-	str	r3, [r7, #12]
-	ldr	r3, [r7, #12]
-	mov	r0, r3
-	adds	r7, r7, #20
-	mov	sp, r7
-	@ sp needed
-	pop	{r7}
-	bx	lr
-	.size	charToInt, .-charToInt
+    push {lr}
+    push {r4-r11}
+    mov r2, #0x0
+    mov r5, #0x0
+    mov r6, #1
+    mov r7, #10
 
+_string_lenght_loop:
+    ldrb r8, [r0]
+    cmp r8, #0xa
+    beq _count
+    add r0, r0, #1
+    add r2, r2, #1
+    b _string_lenght_loop
+
+_count:
+    sub r0, r0, #1
+    ldrb r8, [r0] 
+    sub r8, r8, #0x30
+    mul r4, r8, r6
+    mov r8, r4
+    mul r4, r6, r7
+    mov r6, r4
+    add r5, r5, r8
+    sub r2, r2, #1
+    cmp r2, #0x0
+    beq _leave
+    b _count
+
+_leave:
+    mov r0, r5
+    pop {r4-r11}
+    bx lr
 	.align	1
 	.global	main
 	.syntax unified
@@ -259,5 +272,4 @@ F0:
 
 	sum: 
 		.skip 8
-	
 	
