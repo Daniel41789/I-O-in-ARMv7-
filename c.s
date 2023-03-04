@@ -161,46 +161,52 @@ charToInt:
 main: 
 	@ Prólogo
 	push {r7, lr}
-	sub	sp, sp, #16
+	sub	sp, sp, #24
 	add	r7, sp, #0
 	@ Fin del Prólogo
-	mov r0, #0					@ int i = 0;
-	str r0, [r7]				@ stores r0 in i
+	mov r3, #0
+	movs r3, #0					@ int i = 0;
+	str r3, [r7, #4]				@ stores r0 in i
 	b F0						@ branch to F0
-F1: ldr r1, =#0x6
+F1: 
 	ldr r0, =first
-    bl read_user_input
-	mov r2, r0
+	ldr r1, =#0x6
+    	bl read_user_input
 
 	// calls charToInt
-	mov r0, r2
-	bl charToInt
-	mov r2, r0
-	ldr r0, [r7]				@ loads i into r0
-	add r1, r7, #4				@ base (a)
-	str r2, [r1, r0, lsl #2]	@ adress a[i] = base (a) + size * i 
-	ldr r0, [r7]				@ r0 <- i
-	add r0, #1					@ i++
-	str r0, [r7]				@ stores r0 in i
-F0: ldr r0, [r7]				@ r0 <- i
-	cmp r0, #3					@ compares
-	blt F1						@ i < 3
+	ldr r0, =first
+	bl charToInt				@ branch to charToInt							
+	ldr r3, [r7, #4]			@ Cambiar estos registros --->
+	lsls r3, r3, #2				@ i*4
+	adds r3, r3, #24				@ r2 <- base
+	add r3, r3, r7				@ base + i * 4
+	mov r2, r0 					@ 
+	str r2, [r3, #-16]
+	ldr r3, [r7, #4]
+	adds r3, r3, #1
+	str r3, [r7, #4]
+F0: 
+	ldr r3, [r7, #4]				@ r0 <- i
+	cmp r3, #2					@ compares
+	ble F1
 
 	// calls sum_array
-	add r1, r7, #4				@ base (a)
-	mov r0, r1					@ 
-	bl sum_array				@ calls sum_array
-	mov r1, r0					@
-
+	add r3, r7, #8				@ base (a)
+	mov r1, #3
+	mov r0, r3					@ 
+	bl sum_array
+	mov r9, r0				@ calls sum_array
+	
+	// Aqui va llamado a int to string
+	
 	// Llamado de la función de impresión 
+	ldr r1, =sum
 	mov r0, r1
 	bl display
-    mov r0, #0x0
-    mov r7, #0x1
-    svc 0x0
 
-	mov	r0, #0
-	adds	r7, r7, #16
+	@return 0
+	mov	r0, r9
+	adds r7, r7, #24
 	mov	sp, r7
 	@ sp needed
 	pop	{r7, pc}
