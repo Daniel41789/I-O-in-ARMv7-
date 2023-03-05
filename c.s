@@ -41,11 +41,12 @@
 */
 
 int_to_string:
-    push {lr}				@Prologue
-    push {r4-r11}
+	push {r7}				@Prologue
+	sub sp, sp, #32
+	add r7, sp, #0	
     mov r2, #0x0			@ array index
     mov r3, #1000			@ Initialize the divisor
-    mov r7, #10				@ r7 = 10
+    mov r8, #10				@ r8 = 10
 
 _loop:
     mov r4, #0x0			@ r4 = 0
@@ -60,7 +61,7 @@ _loop:
     mul r6, r4, r3			@ r3 = r4 * divisor
     sub r0, r0, r6			@ Subtract the result from r0
 
-    udiv r6, r3, r7			@ r6 = divisor / 10
+    udiv r6, r3, r8			@ r6 = divisor / 10
     mov r3, r6				@ r3 = update divisor 
     cmp r3, #0				@ Compare divisor with 0
     beq _leave_int			@ Branch to _leave_int
@@ -72,8 +73,11 @@ _leave_int:
     add r5, r5, r2			@ r5 + i
     add r5, r5, #1			@ Space for the final digit of the array
     strb r4, [r5]			@ Load r4 in sum
-    pop {r4-r11}			@Epilogue
-    pop {pc}
+
+	adds r7, r7, #32		@Epilogue
+	mov sp, r7
+	pop {r7}
+	bx lr
 
 /*To print to the terminal the result of the sum of the three numbers entered by the user
 *  @param: ASCII value
@@ -119,7 +123,7 @@ read_user_input:
 	
 	push {r7} 				@ Prologue
 	sub sp, sp, #12
-	add r7, sp, #0			@ End of prologue
+	add r7, sp, #0			
 	str r0, [r7] 			@ backs buffers base address up 
 	str r1, [r7, #4] 		@ backs buffer size up
 
@@ -187,7 +191,6 @@ sum_array:
 	mov	r0, r3				@ Epilogue
 	adds	r7, r7, #20		
 	mov	sp, r7
-	@ sp needed
 	pop	{r7}
 	bx	lr
 	.size	sum_array, .-sum_array	
@@ -204,12 +207,13 @@ sum_array:
 * @return: integer value
 */
 charToInt:
-    push {lr}				@ Prologue
-    push {r4-r11}
+	push	{r7}			@Prologue
+	sub	sp, sp, #32
+	add	r7, sp, #0
     mov r2, #0x0			@ count = 0
     mov r5, #0x0			@ i = 0
     mov r6, #1				@ multi = 1
-    mov r7, #10				@ convert
+    mov r9, #10				@ r9 = 10
 
 _string_lenght_loop:		@ Loop that traverses the array.
     ldrb r8, [r0]			@ r8 = r0
@@ -225,7 +229,7 @@ _count:
     sub r8, r8, #0x30		@ r8 = r8 - 0x30 //decimal value of the digit
     mul r4, r8, r6			@ r8 * r6	//decimal value of the digit in the corresponding position
     mov r8, r4				@ r8 = int 
-    mul r4, r6, r7			@ r4 = r6 * r7 //Update multi
+    mul r4, r6, r9			@ r4 = r6 * r7 //Update multi
     mov r6, r4				@ r6 = r4
     add r5, r5, r8			@ r5 = r5 + r8
     sub r2, r2, #1			@ count--
@@ -235,8 +239,10 @@ _count:
 
 _leave:
     mov r0, r5			@ Epilogue
-    pop {r4-r11}
-    bx lr
+	adds r7, r7, #32		
+	mov	sp, r7
+	pop	{r7}
+	bx	lr
 	.align	1
 	.global	main
 	.syntax unified
@@ -291,7 +297,6 @@ F0:
 	mov	r0, #0					@ Epilogue
 	adds r7, r7, #24			
 	mov	sp, r7
-	@ sp needed
 	pop	{r7, pc}
 
 	.size	main, .-main
