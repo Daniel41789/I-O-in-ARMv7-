@@ -42,7 +42,7 @@
 
 int_to_string:
 	push {r7}				@Prologue
-	sub sp, sp, #32
+	sub sp, sp, #24
 	add r7, sp, #0	
     mov r2, #0x0			@ array index
     mov r3, #1000			@ Initialize the divisor
@@ -74,7 +74,7 @@ _leave_int:
     add r5, r5, #1			@ Space for the final digit of the array
     strb r4, [r5]			@ Load r4 in sum
 
-	adds r7, r7, #32		@Epilogue
+	adds r7, r7, #24		@Epilogue
 	mov sp, r7
 	pop {r7}
 	bx lr
@@ -208,7 +208,7 @@ sum_array:
 */
 charToInt:
 	push	{r7}			@Prologue
-	sub	sp, sp, #32
+	sub	sp, sp, #24
 	add	r7, sp, #0
     mov r2, #0x0			@ count = 0
     mov r5, #0x0			@ i = 0
@@ -239,7 +239,7 @@ _count:
 
 _leave:
     mov r0, r5			@ Epilogue
-	adds r7, r7, #32		
+	adds r7, r7, #24		
 	mov	sp, r7
 	pop	{r7}
 	bx	lr
