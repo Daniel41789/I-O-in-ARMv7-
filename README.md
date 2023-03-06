@@ -4,6 +4,8 @@ Authors:
 - Karina Alcantara Segura
 - Brandon Chávez Salaverría
 
+El código en ensamblador final de este proyecto es el archivo "c.s", para llegar a este resultado el equipo se basó en los archivos, "prueba1.c" y "prueba 1.s" así como en los archivos "prueba2.c" y "prueba2.s"
+
 El código recibe tres números ingresados por el usuario, los convierte de ASCII a enteros, almacena los valores enteros en un arreglo, suma los valores en el arreglo, convierte el resultado de entero a ASCII e imprime el resultado en la terminal.
 
 El código tiene tres funciones: int_to_string, display, sum_array, charToInt y read_user_input.
@@ -58,3 +60,12 @@ Frame:
           0
 
 La función main solicita al usuario que ingrese tres números, lee la entrada utilizando la función read_user_input, convierte la entrada en valores enteros utilizando la función int_to_string, suma los valores en el arreglo utilizando la función sum_array, convierte el resultado en un valor ASCII utilizando la función charToInt e imprime el resultado en la terminal utilizando la función display.
+
+Frame: 
+          24 - size        - local
+          20 - a[2]        - local
+          16 - a[1]        - local
+          12 - a[0]        - local
+          8 - i            - local
+          4 - lr
+          0 - r7
